@@ -17,10 +17,8 @@ public class LameBrain implements Brain {
 	 the best play for that piece, or returns null if no play is possible.
 	 See the Brain interface for details.
 	*/
-	public Brain.Move bestMove(Board board, Piece piece, int limitHeight, Brain.Move move) {
-		
-		// Allocate a move object if necessary
-		if (move==null) move = new Brain.Move();
+	@Override
+	public int bestMove(Board board, Piece piece, int pieceX, int pieceY, int limitHeight)  {
 		
 		double bestScore = 1e20;
 		int bestX = 0;
@@ -59,14 +57,17 @@ public class LameBrain implements Brain {
 			if (current == piece) break;	// break if back to original rotation
 		}
 
-		if (bestPiece == null) return(null);	// could not find a play at all!
-		else {
-			move.x=bestX;
-			move.y=bestY;
-			move.piece=bestPiece;
-			move.score = bestScore;
-			return(move);
-		}
+		if (bestPiece == null) return(JTetris.DOWN);	// could not find a play at all!
+		
+		if(!piece.equals(bestPiece))
+			return JTetris.ROTATE;
+		if(bestX == pieceX)
+			return JTetris.DROP;
+		if(bestX < pieceX)
+			return JTetris.LEFT;
+		else
+			return JTetris.RIGHT;
+		
 	}
 	
 	
@@ -106,5 +107,7 @@ public class LameBrain implements Brain {
 		// The weights, 8, 40, etc., are just made up numbers that appear to work
 		return (8*maxHeight + 40*avgHeight + 1.25*holes);	
 	}
+
+
 
 }
