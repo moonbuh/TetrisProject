@@ -18,6 +18,7 @@ import java.util.*;
 public final class Board  {
 	private int width;
 	private int height;
+	int Diff = 0;
 	private boolean[][] grid;
 	private boolean[][] backupGrid;
 	
@@ -207,7 +208,7 @@ public final class Board  {
 	*/
 	public boolean clearRows() {
 	    boolean removed = false;
-			int toRow = 0;
+		int toRow = 0;
 	    int fromRow = 0;
 	    while(toRow < height){
 	      while(fromRow < height && getRowWidth(fromRow) == width)
@@ -226,11 +227,18 @@ public final class Board  {
 	      toRow++;
 	      fromRow++;
 	    }
-
+	    Diff = fromRow - toRow;
 	    return removed;
 	}
-
-
+	
+	public int findFirstHeight(int thisX) {
+		for(int i = 0; i < height; i++)
+	    {
+	      if(grid[thisX][i])
+	        return i;
+	    }
+		return 0;
+	}
 
 	/**
 	 If a place() happens, optionally followed by a clearRows(),

@@ -11,7 +11,7 @@
  brain -- just subclass off LameBrain and override rateBoard().
 */
 
-public class LameBrain implements Brain {
+public class Brain2 implements Brain {
 	/**
 	 Given a piece and a board, returns a move object that represents
 	 the best play for that piece, or returns null if no play is possible.
@@ -23,9 +23,70 @@ public class LameBrain implements Brain {
 		double bestScore = 1e20;
 		int bestX = 0;
 		int bestY = 0;
+		int sTimes = 0;
 		Piece bestPiece = null;
 		Piece current = piece;
 		
+		int a = 0;
+		int b = 0;
+		int firstX = 0;
+		int firstY = 0;
+		for(int i = 0; i < board.getWidth(); i++)
+		{
+			if(board.getColumnHeight(i)!=board.findFirstHeight(i))
+			{
+				if(a < board.findFirstHeight(i))
+					a = board.findFirstHeight(i);
+				
+				b = i;
+				break;
+			}
+		}
+		if(a != 0)
+		{
+			
+			for(int i = b; i < board.getWidth(); i++)
+			{
+				for(int i2 = a; i2 < board.getHeight(); i2++)
+				{
+					if(board.place(bestPiece, i, i2)==0)
+					{
+						if(i+2 < board.getWidth() && i-2 < board.getWidth()) {
+							if(board.getColumnHeight(i+1) < i2 && board.getColumnHeight(i+2) < i2)
+							{
+								firstX = i+1;
+								bestY = i2;
+								bestX = i;
+							}else if(board.getColumnHeight(i-1) < i2 && board.getColumnHeight(i-2) < i2)
+							{
+								firstX = i-1;
+								bestY = i2;
+								bestX = i;
+							}
+						}
+					}
+				}
+			}
+			if (bestPiece == null) return(JTetris.DOWN);	// could not find a play at all!
+			
+			if(!piece.equals(bestPiece))
+				return JTetris.ROTATE;
+			
+			if(firstX < pieceX)
+				return JTetris.LEFT;
+			else if(firstX > pieceX)
+				return JTetris.RIGHT;
+			
+			if(bestY != pieceY)
+				return JTetris.DOWN;
+			else
+			{
+				if(bestX < pieceX)
+					return JTetris.LEFT;
+				else
+					return JTetris.RIGHT;
+			}
+		}
 		// loop through all the rotations
 		while (true) {
 			final int yBound = limitHeight - current.getHeight()+1;
@@ -37,10 +98,13 @@ public class LameBrain implements Brain {
 				if (y<yBound) {	// piece does not stick up too far
 					int result = board.place(current, x, y);
 					if (result <= Board.PLACE_ROW_FILLED) {
-						if (result == Board.PLACE_ROW_FILLED) board.clearRows();
-						
-						double score = rateBoard(board);
-						
+						if (result == Board.PLACE_ROW_FILLED)
+							{
+							board.clearRows();
+							sTimes = board.Diff;
+							}
+						double score = rateBoard(board, sTimes);
+						sTimes=0;
 						if (score<bestScore) {
 							bestScore = score;
 							bestX = x;
@@ -56,6 +120,8 @@ public class LameBrain implements Brain {
 			current = current.nextRotation();
 			if (current == piece) break;	// break if back to original rotation
 		}
+		
+		
 
 		if (bestPiece == null) return(JTetris.DOWN);	// could not find a play at all!
 		
@@ -67,7 +133,6 @@ public class LameBrain implements Brain {
 			return JTetris.LEFT;
 		else
 			return JTetris.RIGHT;
-		
 	}
 	
 	
@@ -79,7 +144,7 @@ public class LameBrain implements Brain {
 	 and the number of "holes" in the board.
 	 See Tetris-Architecture.html for brain ideas.
 	*/
-	public double rateBoard(Board board) {
+	public double rateBoard(Board board, int Times) {
 		final int width = board.getWidth();
 		final int maxHeight = board.getMaxHeight();
 		
@@ -105,7 +170,7 @@ public class LameBrain implements Brain {
 		
 		// Add up the counts to make an overall score
 		// The weights, 8, 40, etc., are just made up numbers that appear to work
-		return (8*maxHeight + 40*avgHeight + 1.25*holes);	
+		return ( 30*maxHeight + 80*avgHeight + 16*holes - 150*Times);	
 	}
 
 
