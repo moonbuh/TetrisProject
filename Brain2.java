@@ -26,67 +26,8 @@ public class Brain2 implements Brain {
 		int sTimes = 0;
 		Piece bestPiece = null;
 		Piece current = piece;
+		int PW = 0;
 		
-		int a = 0;
-		int b = 0;
-		int firstX = 0;
-		int firstY = 0;
-		for(int i = 0; i < board.getWidth(); i++)
-		{
-			if(board.getColumnHeight(i)!=board.findFirstHeight(i))
-			{
-				if(a < board.findFirstHeight(i))
-					a = board.findFirstHeight(i);
-				
-				b = i;
-				break;
-			}
-		}
-		if(a != 0)
-		{
-			
-			for(int i = b; i < board.getWidth(); i++)
-			{
-				for(int i2 = a; i2 < board.getHeight(); i2++)
-				{
-					if(board.place(bestPiece, i, i2)==0)
-					{
-						if(i+2 < board.getWidth() && i-2 < board.getWidth()) {
-							if(board.getColumnHeight(i+1) < i2 && board.getColumnHeight(i+2) < i2)
-							{
-								firstX = i+1;
-								bestY = i2;
-								bestX = i;
-							}else if(board.getColumnHeight(i-1) < i2 && board.getColumnHeight(i-2) < i2)
-							{
-								firstX = i-1;
-								bestY = i2;
-								bestX = i;
-							}
-						}
-					}
-				}
-			}
-			if (bestPiece == null) return(JTetris.DOWN);	// could not find a play at all!
-			
-			if(!piece.equals(bestPiece))
-				return JTetris.ROTATE;
-			
-			if(firstX < pieceX)
-				return JTetris.LEFT;
-			else if(firstX > pieceX)
-				return JTetris.RIGHT;
-			
-			if(bestY != pieceY)
-				return JTetris.DOWN;
-			else
-			{
-				if(bestX < pieceX)
-					return JTetris.LEFT;
-				else
-					return JTetris.RIGHT;
-			}
-		}
 		// loop through all the rotations
 		while (true) {
 			final int yBound = limitHeight - current.getHeight()+1;
@@ -116,7 +57,13 @@ public class Brain2 implements Brain {
 					board.undo();	// back out that play, loop around for the next
 				}
 			}
-			
+			PW = board.getPieceWidth(current);
+			if(PW == 1)
+				break;
+			else if(PW==4)
+			{
+				bestScore = 9999999;
+			}
 			current = current.nextRotation();
 			if (current == piece) break;	// break if back to original rotation
 		}
@@ -150,6 +97,7 @@ public class Brain2 implements Brain {
 		
 		int sumHeight = 0;
 		int holes = 0;
+		int lowHeight;
 		
 		// Count the holes, and sum up the heights
 		for (int x=0; x<width; x++) {
@@ -166,13 +114,12 @@ public class Brain2 implements Brain {
 			}
 		}
 		
+		int diffH = maxHeight - board.lowHeight();
+		
 		double avgHeight = ((double)sumHeight)/width;
 		
 		// Add up the counts to make an overall score
 		// The weights, 8, 40, etc., are just made up numbers that appear to work
-		return ( 30*maxHeight + 80*avgHeight + 16*holes - 150*Times);	
+		return ( maxHeight*maxHeight*maxHeight/3  + 2*holes*holes - 200*Times + 2*diffH*diffH );	
 	}
-
-
-
 }

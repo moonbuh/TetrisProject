@@ -231,15 +231,25 @@ public final class Board  {
 	    return removed;
 	}
 	
-	public int findFirstHeight(int thisX) {
-		for(int i = 0; i < height; i++)
-	    {
-	      if(grid[thisX][i])
-	        return i;
-	    }
-		return 0;
+	public int lowHeight() {
+		int maxH, lowH, ColH;
+		maxH = lowH = getMaxHeight();
+		for(int i = 0; i < width; i++)
+		{
+			ColH = getColumnHeight(i);
+			if(lowH > ColH)
+				lowH = ColH;
+		}
+		return lowH;
 	}
-
+	
+	public int getPieceWidth(Piece piece)
+	{
+		return piece.getWidth();
+	}
+	
+	
+	
 	/**
 	 If a place() happens, optionally followed by a clearRows(),
 	 a subsequent undo() reverts the board to its state before
